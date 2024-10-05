@@ -1,101 +1,121 @@
-import Image from "next/image";
+"use client";
+import { useState } from "react";
+import { CircleX } from "lucide-react";
+import { Product, ProductCard } from "@/components/ProductCard";
+import { useCartCxt } from "@/contexts/cart/cart.context";
+import { EmptyCartIcon } from "./assets/Icons/EmptyCartIcon";
+import { NeutralIcon } from "./assets/Icons/NeutralIcon";
+import { currencyParser } from "@/lib/currencyParser";
+import { CheckoutModal } from "@/components/CheckoutModal";
+import products from "./data.json";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+	const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+	const { cart, dispatch } = useCartCxt();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+	const removeItem = ({ product }: { product: Product }) => {
+		dispatch({
+			type: "REMOVE_ITEM",
+			payload: { product, quantity: 0 },
+		});
+	};
+
+	const onClose = () => setIsModalOpen(false);
+
+	return (
+		<>
+			<section className="flex flex-col xl:flex-row gap-12">
+				<main className="flex flex-col space-y-4 md:space-y-10">
+					<h1 className="text-2xl md:text-4xl font-bold leading-10">
+						Desserts
+					</h1>
+					<section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+						{products.map((product) => (
+							<ProductCard key={product.id} product={product} />
+						))}
+					</section>
+				</main>
+				<aside className="bg-white p-6 flex flex-col space-y-4 rounded-lg h-fit flex-grow max-h-dvh- border-">
+					<h2 className="text-lg md:text-2xl font-bold text-cart-red">
+						Your Cart ({cart.totalItems})
+					</h2>
+					{cart.totalItems === 0 ? (
+						<div className="flex flex-col items-center justify-center space-y-2 ease-linear transition-all duration-300">
+							<EmptyCartIcon />
+							<span className="">Your added items will appear here</span>
+						</div>
+					) : (
+						<div className="flex flex-col space-y-4 ease-linear transition-all duration-300">
+							{cart.items.map((item) => {
+								return (
+									<div
+										key={item.product.id}
+										className="flex items-center justify-between border-b pb-4 ease-linear transition-all duration-300"
+									>
+										<div className="flex flex-col space-y-1">
+											<p className="text-sm font-semibold text-cart-rose-900">
+												{item.product.name}
+											</p>
+											<div className="flex items-center space-x-3">
+												<span className="text-sm font-semibold text-cart-red">
+													{item.quantity}x
+												</span>
+												<span className="text-sm font-normal text-cart-rose-500">
+													@{currencyParser(item.product.price)}
+												</span>
+												<span className="text-sm font-semibold text-cart-rose-500">
+													{currencyParser(item.total)}
+												</span>
+											</div>
+										</div>
+										<button
+											type="button"
+											aria-label="remove-item"
+											onClick={() => removeItem(item)}
+											className="group transition-all duration-150 ease-linear rounded-full"
+										>
+											<CircleX
+												size={20}
+												className="text-cart-rose-300 group-hover:text-cart-rose-400"
+											/>
+										</button>
+									</div>
+								);
+							})}
+
+							<div className="flex items-center justify-between">
+								<span className="text-xs md:text-sm font-normal text-cart-rose-900">
+									Order Total
+								</span>
+								<span className="text-lg md:text-2xl font-bold text-cart-rose-900">
+									{currencyParser(cart.totalPrice)}
+								</span>
+							</div>
+							<div className="bg-cart-rose-50 px-6 py-3 flex items-center justify-center space-x-2 rounded-md">
+								<NeutralIcon />
+								<p className="text-sm text-cart-rose-900">
+									This is a{" "}
+									<span className="font-semibold">carbon-neutral</span> delivery
+								</p>
+							</div>
+							<button
+								type="button"
+								aria-label="confirm-order"
+								onClick={() => setIsModalOpen(true)}
+								className="py-3 text-white bg-cart-red font-medium rounded-full outline-none focus:outline-none hover:bg-cart-rose-900 transition-all duration-300 ease-linear"
+							>
+								Confirm Order
+							</button>
+						</div>
+					)}
+				</aside>
+			</section>
+
+			<CheckoutModal
+				onClose={onClose}
+				open={isModalOpen}
+				onClickOutside={!isModalOpen}
+			/>
+		</>
+	);
 }

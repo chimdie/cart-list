@@ -6,7 +6,6 @@ This is a solution to the [Product list with cart challenge on Frontend Mentor](
 
 - [The challenge](#the-challenge)
 - [Screenshot](#screenshot)
-- [Links](#links)
 - [Built with](#built-with)
 
 ### The challenge
@@ -23,11 +22,6 @@ Users should be able to:
 ### Screenshot
 
 ![''](./app/assets/screenshot.png)
-
-### Links
-
-- Solution URL: [Add solution URL here](https://your-solution-url.com)
-- Live Site URL: [Add live site URL here](https://your-live-site-url.com)
 
 ### Built with
 

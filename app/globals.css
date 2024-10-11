@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 @layer base {
-	body {
-		@apply px-6 lg:px-0 py-10;
-	}
+  body {
+    @apply px-6 lg:px-0 py-10;
+  }
 }
